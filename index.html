@@ -1,42 +1,96 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="node_modules/onsenui/css/onsenui.min.css">
-    <link rel="stylesheet" href="node_modules/onsenui/css/onsen-css-components.min.css">
-    <script src="node_modules/react/umd/react.production.min.js"></script>
-    <script src="node_modules/prop-types/prop-types.js"></script>
-    <script src="node_modules/react-dom/umd/react-dom.production.min.js"></script>
-    <script src="node_modules/onsenui/js/onsenui.js"></script>
-    <script src="node_modules/create-react-class/create-react-class.js"></script>
-    <script src="node_modules/react-onsenui/dist/react-onsenui.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="stylesheet" href="node_modules/onsenui/css/onsenui.min.css">
+  <link rel="stylesheet" href="node_modules/onsenui/css/onsen-css-components.min.css">
+  <!--    <script src="node_modules/react/umd/react.production.min.js" type="module"></script>-->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+  <script type="text/javascript" src="node_modules/react/umd/react.development.js"></script>
+  <script type="text/javascript" src="node_modules/react-dom/umd/react-dom.development.js"></script>
+  <!--  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/react/16.8.6/umd/react.development.js"></script>-->
+  <!--  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.8.6/umd/react-dom.development.js"></script>-->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
 
-    <script>
-        ons.ready(function() {
-            // Cordova APIs are ready
-            console.log(window.location.href);
-        });
+  <script src="node_modules/prop-types/prop-types.js"></script>
+  <!--    <script src="node_modules/react-dom/umd/react-dom.production.min.js" type="module"></script>-->
+  <script src="node_modules/onsenui/js/onsenui.js"></script>
+  <!--    <script src="node_modules/create-react-class/create-react-class.js" type="module"></script>-->
+  <script src="node_modules/react-onsenui/dist/react-onsenui.js"></script>
 
-    </script>
+  <script>
+    /*ons.ready(function() {
+        // Cordova APIs are ready
+        console.log(window.location.href);
+    });*/
+
+  </script>
 </head>
 <body>
 <div id="app"></div>
 
 <script type="text/babel">
-    var App = createReactClass({
-        handleClick: function() {
-            ons.notification.alert('Hello world!');
-        },
+  // import ons from "onsenui"
+  // const {Page} = Ons;
+  const {useEffect, useRef, useState, useCallback} = React;
+  // import * as ReactDOM from "react-dom"
 
-        render: function() {
-            return (
-                <Ons.Page>
-                    <Ons.Button onClick={this.handleClick}>Tap me!</Ons.Button>
-                </Ons.Page>
-            );
+  const App = () => {
+    const wrapperRef = useRef();
+    const [state, setState] = useState({index: -1, date: null, isOpen: false});
+
+    const handleDateChange = useCallback(date => setState(prevState => ({...prevState, date})), [setState]);
+    const handleClick = () => alert('clicked')
+    const openCalendar = useCallback(() => setState(prevState => ({...prevState, isOpen: ! prevState.isOpen})), [setState]);
+
+    const handleClickOutside = useCallback(({target}) => {
+        if (state.isOpen && wrapperRef && ! wrapperRef.current.contains(target)) {
+          setState(prevState => ({...prevState, isOpen: false}));
         }
-    });
-    ReactDOM.render(<App />, document.getElementById('app'));
+      },
+      [state.isOpen, wrapperRef]);
+
+    useEffect(
+      () => {
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+          document.removeEventListener("mousedown", handleClickOutside);
+        };
+      },
+      [handleClickOutside]
+    );
+    return (
+      /*            <div className="container">
+                      <div className="calendar-container" ref={wrapperRef}>
+                          <button className="uk-button uk-button-primary date-button" onClick={openCalendar}>{!state.isOpen ? "Select Date" : "Close"}</button>
+                          { state.isOpen && <img src="#"></img>}
+                      </div>
+                      { state.date && <p>Selected Date: {moment(state.date).format("MM/DD/YYYY hh:mm a")}</p> }
+                  </div>*/
+      <Ons.Page renderToolbar={() =>
+        <Ons.Toolbar>
+          <div className="left">
+            <Ons.BackButton>
+              Back
+            </Ons.BackButton>
+          </div>
+          <div className="center">
+            Title
+          </div>
+          <div className="right">
+            <Ons.ToolbarButton>
+              <Ons.Icon icon="md-menu" />
+            </Ons.ToolbarButton>
+          </div>
+        </Ons.Toolbar> }
+      />
+
+  );
+
+  }
+  ReactDOM.render(
+    <App />
+  , document.getElementById('app'));
 </script>
 </body>
 </html>
